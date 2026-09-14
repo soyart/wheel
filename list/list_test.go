@@ -6,12 +6,12 @@ import (
 
 func TestLists(t *testing.T) {
 	// We can also create a composite key with non-comparable types
-	valuesComposite := []interface{}{make(chan int), []byte("test"), &struct{ n int }{n: 69}}
-	qComposite := NewQueue[interface{}]()
-	sComposite := NewStack[interface{}]()
+	valuesComposite := []any{make(chan int), []byte("test"), &struct{ n int }{n: 69}}
+	qComposite := NewQueue[any]()
+	sComposite := NewStack[any]()
 
-	testBasicList[interface{}](t, valuesComposite, qComposite)
-	testBasicList[interface{}](t, valuesComposite, sComposite)
+	testBasicList(t, valuesComposite, qComposite)
+	testBasicList(t, valuesComposite, sComposite)
 }
 
 func testBasicList[T any](t *testing.T, values []T, basicList BasicList[T]) {

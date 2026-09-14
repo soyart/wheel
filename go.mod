@@ -1,5 +1,5 @@
 module github.com/soyart/wheel
 
-go 1.23.6
+go 1.26.0
 
-require golang.org/x/exp v0.0.0-20250128182459-e0ece0dbea4c
+require golang.org/x/exp v0.0.0-20260908205506-85c1c2202aba

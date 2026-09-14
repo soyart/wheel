@@ -1,20 +1,11 @@
 package wheel
 
 import (
-	"golang.org/x/exp/constraints"
+	"cmp"
 )
-
-type Setter[T any] interface {
-	SetValue(T)
-}
 
 type Getter[T any] interface {
 	GetValue() T
-}
-
-type Wrapper[T any] interface {
-	Setter[T]
-	Getter[T]
 }
 
 type Set[T comparable] interface {
@@ -33,15 +24,7 @@ func (w *wrapper[T]) GetValue() T {
 	return w.inner
 }
 
-func NewSetter[T any](t T) Setter[T] {
-	return &wrapper[T]{inner: t}
-}
-
 func NewGetter[T any](t T) Getter[T] {
-	return &wrapper[T]{inner: t}
-}
-
-func NewWrapper[T any](t T) Wrapper[T] {
 	return &wrapper[T]{inner: t}
 }
 
@@ -63,7 +46,7 @@ func FromValues[T any](values []T) []Getter[T] {
 	return getters
 }
 
-func MaxValuer[T constraints.Ordered](values []Getter[T]) T {
+func MaxValuer[T cmp.Ordered](values []Getter[T]) T {
 	var t T
 	if len(values) == 0 {
 		return t
@@ -80,7 +63,7 @@ func MaxValuer[T constraints.Ordered](values []Getter[T]) T {
 	return max
 }
 
-func MinValuer[T constraints.Ordered](values []Getter[T]) T {
+func MinValuer[T cmp.Ordered](values []Getter[T]) T {
 	var t T
 	if len(values) == 0 {
 		return t

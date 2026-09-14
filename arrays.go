@@ -1,5 +1,9 @@
 package wheel
 
+import "cmp"
+
+import "slices"
+
 import "golang.org/x/exp/constraints"
 
 // CopySlice return a copy of |arr|.
@@ -25,12 +29,7 @@ func Reverse[T any](arr []T) []T {
 
 // Contains iterates over |arr| and returns true if an element in |arr| is equal to |item|.
 func Contains[T comparable](arr []T, item T) bool {
-	for _, elem := range arr {
-		if elem == item {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(arr, item)
 }
 
 // FilterSlice iterates over |arr| and calls |filterFunc| on each of the element |elem|.
@@ -145,7 +144,7 @@ func Map[T any, U any](
 	return mapped
 }
 
-func Max[T constraints.Ordered](items ...T) T {
+func Max[T cmp.Ordered](items ...T) T {
 	if len(items) == 0 {
 		var zeroValue T
 		return zeroValue
@@ -160,7 +159,7 @@ func Max[T constraints.Ordered](items ...T) T {
 	return max
 }
 
-func Min[T constraints.Ordered](items ...T) T {
+func Min[T cmp.Ordered](items ...T) T {
 	if len(items) == 0 {
 		var zeroValue T
 		return zeroValue

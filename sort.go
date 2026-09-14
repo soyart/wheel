@@ -1,9 +1,8 @@
 package wheel
 
 import (
+	"cmp"
 	"fmt"
-
-	"golang.org/x/exp/constraints"
 )
 
 type SortOrder uint8
@@ -36,7 +35,7 @@ type LessFunc[T any] func(list []T, i, j int) bool
 
 // LessFuncOrdered selects the appropriate comparison function to check if the elements are ordered.
 // If the returned function returns true, then the elements are sorted according to its |ordering|
-func LessFuncOrdered[T constraints.Ordered](ordering SortOrder) func(T, T) bool {
+func LessFuncOrdered[T cmp.Ordered](ordering SortOrder) func(T, T) bool {
 	switch ordering {
 	case Ascending:
 		return func(v1, v2 T) bool {
@@ -53,7 +52,7 @@ func LessFuncOrdered[T constraints.Ordered](ordering SortOrder) func(T, T) bool 
 }
 
 // Less implementation for constraints.Ordered
-func FactoryLessFuncOrdered[T constraints.Ordered](
+func FactoryLessFuncOrdered[T cmp.Ordered](
 	order SortOrder,
 ) LessFunc[Getter[T]] {
 	if order == Ascending {

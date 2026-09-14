@@ -7,7 +7,7 @@ func NewStack[T any]() *StackImpl[T] {
 }
 
 func NewStackSafe[T any]() SafeList[T, *StackImpl[T]] {
-	return WrapSafeList[T](new(StackImpl[T]))
+	return WrapSafeList(new(StackImpl[T]))
 }
 
 func (s *StackImpl[T]) Push(x T) {
