@@ -11,8 +11,8 @@ import (
 // PriorityQueue wraps items []T and implements Go's heap.Interface.
 // tree.Heap is an alternative implementation with wheel's implementation of heaps.
 type PriorityQueue[T any] struct {
-	Items    []wheel.Getter[T]
-	LessFunc wheel.LessFunc[wheel.Getter[T]]
+	Items    []T
+	LessFunc wheel.LessFunc[T]
 }
 
 func NewPriorityQueue[T cmp.Ordered](order wheel.SortOrder) *PriorityQueue[T] {
@@ -32,14 +32,14 @@ func NewPrioirtyQueueCmp[T wheel.CmpOrdered[T]](order wheel.SortOrder) *Priority
 // NewPriorityQueueCustom use the provided lessFunc for the heapify processes.
 func NewPriorityQueueCustom[T any](
 	order wheel.SortOrder,
-	lessFunc wheel.LessFunc[wheel.Getter[T]],
+	lessFunc wheel.LessFunc[T],
 ) *PriorityQueue[T] {
 	return &PriorityQueue[T]{
 		LessFunc: lessFunc,
 	}
 }
 
-func (q *PriorityQueue[T]) ChangeOrdering(lessFunc wheel.LessFunc[wheel.Getter[T]]) {
+func (q *PriorityQueue[T]) ChangeOrdering(lessFunc wheel.LessFunc[T]) {
 	q.LessFunc = lessFunc
 	heap.Init(q)
 }
@@ -57,7 +57,7 @@ func (q *PriorityQueue[T]) Swap(i, j int) {
 }
 
 func (q *PriorityQueue[T]) Push(x any) {
-	item, ok := x.(wheel.Getter[T])
+	item, ok := x.(T)
 	if !ok {
 		typeOfT := fmt.Sprintf("%T", new(T))
 		panic(fmt.Sprintf("x is not of type %s", typeOfT))
@@ -70,7 +70,9 @@ func (q *PriorityQueue[T]) Pop() any {
 	old := *q
 	n := len(old.Items)
 	item := old.Items[n-1]
-	old.Items[n-1] = nil // avoid memory leak
+
+	var zero T
+	old.Items[n-1] = zero // avoid memory leak
 	q.Items = old.Items[0 : n-1]
 
 	return item

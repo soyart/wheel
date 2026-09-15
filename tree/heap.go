@@ -8,8 +8,8 @@ import (
 
 // Heap is a binary heap implementation backed by Go slice.
 type Heap[T any] struct {
-	Items    []wheel.Getter[T]
-	LessFunc wheel.LessFunc[wheel.Getter[T]]
+	Items    []T
+	LessFunc wheel.LessFunc[T]
 }
 
 type HeapOption func(*HeapOptions)
@@ -25,18 +25,21 @@ func HeapPreAlloc(size int) HeapOption {
 }
 
 func NewHeap[T cmp.Ordered](order wheel.SortOrder, opts ...HeapOption) *Heap[T] {
-	options := parseOptions(opts...)
-	return &Heap[T]{
-		Items:    make([]wheel.Getter[T], 0, options.preAlloc),
-		LessFunc: wheel.FactoryLessFuncOrdered[T](order),
-	}
+	return NewHeapCustom(order, wheel.FactoryLessFuncOrdered[T](order), opts...)
 }
 
 func NewHeapCmp[T wheel.CmpOrdered[T]](order wheel.SortOrder, opts ...HeapOption) *Heap[T] {
+	return NewHeapCustom(order, wheel.FactoryLessFuncCmp[T](order), opts...)
+}
+
+// NewHeapCustom builds a Heap[T] ordered by the given lessFunc, for T that
+// isn't cmp.Ordered/CmpOrdered itself (e.g. a struct ordered by one of its
+// fields). Pair it with wheel.LessFuncBy to order by an extracted key.
+func NewHeapCustom[T any](order wheel.SortOrder, lessFunc wheel.LessFunc[T], opts ...HeapOption) *Heap[T] {
 	options := parseOptions(opts...)
 	return &Heap[T]{
-		Items:    make([]wheel.Getter[T], 0, options.preAlloc),
-		LessFunc: wheel.FactoryLessFuncCmp[T](order),
+		Items:    make([]T, 0, options.preAlloc),
+		LessFunc: lessFunc,
 	}
 }
 
@@ -57,31 +60,19 @@ func NewHeapFrom[T cmp.Ordered](order wheel.SortOrder, items []T, opts ...HeapOp
 }
 
 func (h *Heap[T]) Push(item T) {
-	getter := wheel.NewGetter(item)
-	h.PushGetter(getter)
-}
-
-func (h *Heap[T]) PushGetter(getter wheel.Getter[T]) {
-	h.Items = append(h.Items, getter)
+	h.Items = append(h.Items, item)
 	h.heapifyUp(h.Len() - 1)
 }
 
-func (h *Heap[T]) Pop() *T {
-	root := h.PopGetter()
-	if root == nil {
-		return nil
-	}
-
-	rootValue := root.GetValue()
-	return &rootValue
-}
-
-func (h *Heap[T]) PopGetter() wheel.Getter[T] {
+// Pop removes and returns the root item. The bool return is false if the
+// heap was empty, in which case the returned T is the zero value.
+func (h *Heap[T]) Pop() (T, bool) {
 	if h.Len() == 0 {
-		return nil
+		var zero T
+		return zero, false
 	}
 
-	rootNode := h.Items[0]
+	root := h.Items[0]
 	lastIdx := h.Len() - 1
 
 	h.Items[0] = h.Items[lastIdx]
@@ -89,7 +80,7 @@ func (h *Heap[T]) PopGetter() wheel.Getter[T] {
 
 	h.heapifyDown(0)
 
-	return rootNode
+	return root, true
 }
 
 func (h *Heap[T]) Len() int {
@@ -97,10 +88,8 @@ func (h *Heap[T]) Len() int {
 }
 
 func (h *Heap[T]) Clone() Heap[T] {
-	cloned := make([]wheel.Getter[T], h.Len())
-	for i := range cloned {
-		cloned[i] = h.Items[i]
-	}
+	cloned := make([]T, h.Len())
+	copy(cloned, h.Items)
 	return Heap[T]{
 		Items:    cloned,
 		LessFunc: h.LessFunc,
@@ -132,24 +121,28 @@ func (h *Heap[T]) IsEmpty() bool {
 	return len(h.Items) == 0
 }
 
-func (h *Heap[T]) PeekGetter() wheel.Getter[T] {
+// Peek returns the root item without removing it. The bool return is false
+// if the heap is empty, in which case the returned T is the zero value.
+func (h *Heap[T]) Peek() (T, bool) {
 	if len(h.Items) == 0 {
-		return nil
+		var zero T
+		return zero, false
 	}
-	return h.Items[0]
+	return h.Items[0], true
 }
 
+// PopValue is like Pop, but returns the zero value of T instead of a bool
+// when the heap is empty.
 func (h *Heap[T]) PopValue() T {
-	copied := *h.Pop()
-	return copied
+	value, _ := h.Pop()
+	return value
 }
 
+// PeekValue is like Peek, but returns the zero value of T instead of a bool
+// when the heap is empty.
 func (h *Heap[T]) PeekValue() T {
-	if getter := h.PeekGetter(); getter != nil {
-		return getter.GetValue()
-	}
-	var zero T
-	return zero
+	value, _ := h.Peek()
+	return value
 }
 
 func (h *Heap[T]) heapifyUp(from int) {
