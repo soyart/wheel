@@ -2,7 +2,6 @@ package wgraph
 
 import (
 	"fmt"
-	"reflect"
 
 	"github.com/soyart/wheel"
 	"github.com/soyart/wheel/tree"
@@ -73,20 +72,14 @@ func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T
 
 	// pq := list.NewPriorityQueue[T](wheel.Ascending)
 	// heap.Push(pq, startNode)
-	pq := tree.NewHeap[T](wheel.Ascending)
-	pq.PushGetter(startNode)
+	pq := tree.NewHeapCustom[NodeDijkstra[T]](wheel.Ascending, wheel.LessFuncBy(wheel.Ascending, NodeDijkstra[T].GetValue))
+	pq.Push(startNode)
 
 	for !pq.IsEmpty() {
 		// Pop the top of pq and mark it as visited
-		popped := pq.PopGetter()
-		if popped == nil {
-			panic("popped nil - should not happen")
-		}
-
-		current, ok := popped.(NodeDijkstra[T])
+		current, ok := pq.Pop()
 		if !ok {
-			typeOfCurrent := reflect.TypeOf(current)
-			panic(fmt.Sprintf("current is %s, not *Node[T]", typeOfCurrent))
+			panic("popped from empty heap - should not happen")
 		}
 
 		visited[current] = true
@@ -100,7 +93,7 @@ func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T
 				continue
 			}
 
-			pq.PushGetter(edgeNode)
+			pq.Push(edgeNode)
 
 			// If getting to edge from current is cheaper that the edge current cost state,
 			// update it to pass via current instead

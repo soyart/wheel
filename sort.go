@@ -54,28 +54,48 @@ func LessFuncOrdered[T cmp.Ordered](ordering SortOrder) func(T, T) bool {
 // Less implementation for constraints.Ordered
 func FactoryLessFuncOrdered[T cmp.Ordered](
 	order SortOrder,
-) LessFunc[Getter[T]] {
+) LessFunc[T] {
 	if order == Ascending {
-		return func(items []Getter[T], i, j int) bool {
-			return items[i].GetValue() < items[j].GetValue()
+		return func(items []T, i, j int) bool {
+			return items[i] < items[j]
 		}
 	}
 
-	return func(items []Getter[T], i, j int) bool {
-		return items[i].GetValue() > items[j].GetValue()
+	return func(items []T, i, j int) bool {
+		return items[i] > items[j]
 	}
 }
 
 func FactoryLessFuncCmp[T CmpOrdered[T]](
 	order SortOrder,
-) LessFunc[Getter[T]] {
+) LessFunc[T] {
 	if order == Ascending {
-		return func(items []Getter[T], i, j int) bool {
-			return items[i].GetValue().Cmp(items[j].GetValue()) < 0
+		return func(items []T, i, j int) bool {
+			return items[i].Cmp(items[j]) < 0
 		}
 	}
 
-	return func(items []Getter[T], i, j int) bool {
-		return items[i].GetValue().Cmp(items[j].GetValue()) > 0
+	return func(items []T, i, j int) bool {
+		return items[i].Cmp(items[j]) > 0
+	}
+}
+
+// LessFuncBy builds a LessFunc[T] that orders T by a comparable key extracted
+// via keyFunc. It is the explicit, allocation-free replacement for boxing T
+// behind an interface just to get a uniform GetValue()-based comparator:
+// useful when T is a rich type (e.g. a graph node) rather than an ordered
+// value itself.
+func LessFuncBy[T any, K cmp.Ordered](
+	order SortOrder,
+	keyFunc func(T) K,
+) LessFunc[T] {
+	if order == Ascending {
+		return func(items []T, i, j int) bool {
+			return keyFunc(items[i]) < keyFunc(items[j])
+		}
+	}
+
+	return func(items []T, i, j int) bool {
+		return keyFunc(items[i]) > keyFunc(items[j])
 	}
 }
