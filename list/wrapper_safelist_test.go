@@ -3,7 +3,7 @@ package list
 import "testing"
 
 func testSafeListWrapper(t *testing.T) {
-	valuesComposite := []interface{}{make(chan int), []byte("test"), &struct{ n int }{n: 69}}
+	valuesComposite := []any{make(chan int), []byte("test"), &struct{ n int }{n: 69}}
 	ints := []int{1, 2, 3, 4}
 	floats := []float32{1, 2, 3, 4}
 	strings := []string{"kuy", "hee", "tad"}
@@ -17,9 +17,10 @@ func testSafeListWrapper(t *testing.T) {
 func testSafeList[T any](t *testing.T, values []T) {
 	// Those list types wrapped in SafeList[T, BasicList[T]] also implement BasicList[T]
 	basicStack := NewStackSafe[T]()
-	safeStack := WrapSafeList[T](basicStack)
+	safeStack := WrapSafeList(basicStack)
+
 	basicQueue := NewQueue[T]()
-	safeQueue := WrapSafeList[T](basicQueue)
+	safeQueue := WrapSafeList(basicQueue)
 	anotherSafeQueue := NewQueueSafe[T]()
 	tests := []BasicList[T]{safeStack, safeQueue, anotherSafeQueue}
 

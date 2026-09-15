@@ -17,3 +17,17 @@ In general, wheel is divided into 4 modules:
 
   > Note that `graph` is very hard to use, and will need a rework.
   > It also has a flaky tests from undeterminism of hash maps backing the graph.
+
+#### Note to self:
+
+Update Nix Flake lock on macOS with Docker:
+
+```sh
+docker run --rm -v $(pwd):/workspace -v line-fact-check-nix-store:/nix/store nixos/nix:latest sh -c '
+  # Copy to prevent container messing up our code
+  cp -r /workspace /source
+  cd /source
+  nix flake update --extra-experimental-features nix-command --extra-experimental-features flakes
+  cp flake* /workspace/.
+'
+```

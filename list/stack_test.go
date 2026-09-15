@@ -20,8 +20,8 @@ func TestStack(t *testing.T) {
 	}
 
 	// Composite type stack - any comparable types should be ok in this tests
-	valuesComposite := []interface{}{1, true, "second last"}
-	stackComposite := NewStack[interface{}]()
+	valuesComposite := []any{1, true, "second last"}
+	stackComposite := NewStack[any]()
 	// Test Push for composite queue
 	for _, value := range valuesComposite {
 		stackComposite.Push(value)

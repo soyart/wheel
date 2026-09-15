@@ -1,10 +1,10 @@
 package wheel
 
 import (
-	"golang.org/x/exp/constraints"
+	"cmp"
 )
 
-func MergeSort[T constraints.Ordered](arr []T, ordering SortOrder) []T {
+func MergeSort[T cmp.Ordered](arr []T, ordering SortOrder) []T {
 	length := len(arr)
 
 	if length < 2 {

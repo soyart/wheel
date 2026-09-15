@@ -1,12 +1,11 @@
 package list
 
 import (
+	"cmp"
 	"container/heap"
 	"math/big"
 	"reflect"
 	"testing"
-
-	"golang.org/x/exp/constraints"
 
 	"github.com/soyart/wheel"
 )
@@ -16,7 +15,7 @@ const (
 	maxHeap = wheel.Descending
 )
 
-type foo[T constraints.Ordered] struct {
+type foo[T cmp.Ordered] struct {
 	name  string
 	value T
 }
@@ -54,7 +53,7 @@ func TestPq(t *testing.T) {
 	testArbitaryUpdate(t)
 }
 
-func testPop[T constraints.Ordered](t *testing.T, order wheel.SortOrder, items []foo[T]) []foo[T] {
+func testPop[T cmp.Ordered](t *testing.T, order wheel.SortOrder, items []foo[T]) []foo[T] {
 	pq := NewPriorityQueue[T](order)
 	pqCustom := NewPriorityQueueCustom(order, wheel.FactoryLessFuncOrdered[T](order))
 	queues := []*PriorityQueue[T]{pq, pqCustom}

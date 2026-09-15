@@ -1,14 +1,14 @@
 package wheel
 
 import (
-	"golang.org/x/exp/constraints"
+	"cmp"
 )
 
 func swap[T any](v []T, i, j int) {
 	v[i], v[j] = v[j], v[i]
 }
 
-func QuickSortNoCopy[T constraints.Ordered](arr []T, ordering SortOrder, left, right int) {
+func QuickSortNoCopy[T cmp.Ordered](arr []T, ordering SortOrder, left, right int) {
 	if left >= right {
 		return
 	}
@@ -35,7 +35,7 @@ func QuickSortNoCopy[T constraints.Ordered](arr []T, ordering SortOrder, left, r
 	QuickSortNoCopy(arr, ordering, last+1, right)
 }
 
-func QuickSort[T constraints.Ordered](arr []T, ordering SortOrder) []T {
+func QuickSort[T cmp.Ordered](arr []T, ordering SortOrder) []T {
 	l := len(arr)
 	// Base case
 	if l < 2 {

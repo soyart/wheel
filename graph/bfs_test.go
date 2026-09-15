@@ -153,7 +153,7 @@ func loopTestBFS[T any](
 	var hf hashMapBFS[int] = BFSHashMapGraphV1[int]
 
 	// Using BFSNg[int] and BFS[int] directly in testFuncs will fail type system
-	testFuncs := []interface{}{gf, hf}
+	testFuncs := []any{gf, hf}
 	for _, tf := range testFuncs {
 		for fromNode, m := range tests {
 			for toNode, expected := range m {

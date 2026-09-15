@@ -17,8 +17,8 @@ func TestQueue(t *testing.T) {
 	testQueue(t, values1, q1)
 
 	// Composite type queue - any comparable types should be ok in tests
-	valuesComposite := []interface{}{1, 2, "last"}
-	qComposite := NewQueue[interface{}]()
+	valuesComposite := []any{1, 2, "last"}
+	qComposite := NewQueue[any]()
 	// Test Push for composite queue
 	qComposite.PushSlice(valuesComposite)
 	// Test Pop for composite queue

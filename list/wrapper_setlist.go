@@ -8,7 +8,6 @@ type SetListWrapper[T comparable, L BasicList[T]] struct {
 	duplicates map[T]struct{}
 }
 
-// O(1)
 func (s *SetListWrapper[T, L]) HasDuplicate(x T) bool {
 	_, found := s.duplicates[x]
 	return found

@@ -1,15 +1,15 @@
 package tree
 
 import (
-	"golang.org/x/exp/constraints"
+	"cmp"
 )
 
 // Bst is BST implementation with nodeWrapper as node.
-type Bst[T constraints.Ordered] struct {
+type Bst[T cmp.Ordered] struct {
 	Root BinaryTreeNodeWrapper[T]
 }
 
-func NewBst[T constraints.Ordered]() *Bst[T] {
+func NewBst[T cmp.Ordered]() *Bst[T] {
 	return new(Bst[T])
 }
 
@@ -41,7 +41,7 @@ func (b *Bst[T]) Find(target T) bool {
 	return BstFind(&b.Root, target)
 }
 
-func BstInsert[T constraints.Ordered](root *BinaryTreeNodeWrapper[T], node *BinaryTreeNodeWrapper[T]) bool {
+func BstInsert[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], node *BinaryTreeNodeWrapper[T]) bool {
 	curr := root
 
 	for {
@@ -80,7 +80,7 @@ func BstInsert[T constraints.Ordered](root *BinaryTreeNodeWrapper[T], node *Bina
 	}
 }
 
-func BstFind[T constraints.Ordered](root *BinaryTreeNodeWrapper[T], target T) bool {
+func BstFind[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], target T) bool {
 	curr := root
 
 	for {
@@ -105,7 +105,7 @@ func BstFind[T constraints.Ordered](root *BinaryTreeNodeWrapper[T], target T) bo
 }
 
 // BstRemove removes target from subtree tree, returning the new root of the subtree
-func BstRemove[T constraints.Ordered](root *BinaryTreeNodeWrapper[T], target T) *BinaryTreeNodeWrapper[T] {
+func BstRemove[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], target T) *BinaryTreeNodeWrapper[T] {
 	switch {
 	case root == nil:
 		return nil
@@ -159,7 +159,7 @@ func digRight[T any](root *BinaryTreeNodeWrapper[T]) *BinaryTreeNodeWrapper[T] {
 	return curr
 }
 
-func BstInsertRecurse[T constraints.Ordered](root *BinaryTreeNodeWrapper[T], node *BinaryTreeNodeWrapper[T]) bool {
+func BstInsertRecurse[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], node *BinaryTreeNodeWrapper[T]) bool {
 	switch {
 	case !root.ok:
 		root = node

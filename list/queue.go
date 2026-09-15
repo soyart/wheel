@@ -7,7 +7,7 @@ func NewQueue[T any]() *QueueImpl[T] {
 }
 
 func NewQueueSafe[T any]() SafeList[T, *QueueImpl[T]] {
-	return WrapSafeList[T](new(QueueImpl[T]))
+	return WrapSafeList(new(QueueImpl[T]))
 }
 
 func (s *QueueImpl[T]) Push(x T) {

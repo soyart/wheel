@@ -23,7 +23,7 @@ func TestSet(t *testing.T) {
 	}
 
 	var item uint16 = 69
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		set.Push(item)
 	}
 	if set.Len() != 1 {

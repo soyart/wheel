@@ -1,28 +1,27 @@
 package list
 
 import (
+	"cmp"
 	"container/heap"
 	"fmt"
-
-	"golang.org/x/exp/constraints"
 
 	"github.com/soyart/wheel"
 )
 
-// PriorityQueue[T] wraps items []T and implements Go's heap.Interface.
+// PriorityQueue wraps items []T and implements Go's heap.Interface.
 // tree.Heap is an alternative implementation with wheel's implementation of heaps.
 type PriorityQueue[T any] struct {
 	Items    []wheel.Getter[T]
 	LessFunc wheel.LessFunc[wheel.Getter[T]]
 }
 
-func NewPriorityQueue[T constraints.Ordered](order wheel.SortOrder) *PriorityQueue[T] {
+func NewPriorityQueue[T cmp.Ordered](order wheel.SortOrder) *PriorityQueue[T] {
 	return &PriorityQueue[T]{
 		LessFunc: wheel.FactoryLessFuncOrdered[T](order),
 	}
 }
 
-// NewPrioirtyQueueCmp[T] returns *PriorityQueue[wheel.CmpOrdered[T]] with the default lessFunc
+// NewPrioirtyQueueCmp returns *PriorityQueue[wheel.CmpOrdered[T]] with the default lessFunc
 // for type T with Cmp(T), i.e. -1 -> less, 0 -> equal, 1 -> greater.
 func NewPrioirtyQueueCmp[T wheel.CmpOrdered[T]](order wheel.SortOrder) *PriorityQueue[T] {
 	return &PriorityQueue[T]{

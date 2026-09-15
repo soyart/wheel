@@ -12,8 +12,8 @@ func TestMergeSort(t *testing.T) {
 	}
 
 	// See if it'll overflow on 10M ints
-	var s []int = make([]int, 10000000)
-	for i := 0; i < 10000000; i++ {
+	s := make([]int, 10000000)
+	for i := range 10000000 {
 		s[i] = i
 	}
 

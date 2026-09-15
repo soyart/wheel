@@ -7,7 +7,7 @@ import (
 
 func TestBstCountInsertFind(t *testing.T) {
 	bst := new(Bst[int])
-	bstCount := NewBstCount[int](bst)
+	bstCount := NewBstCount(bst)
 
 	start := 1
 	limit := 10
@@ -93,7 +93,7 @@ func TestBstCountRemove(t *testing.T) {
 
 func TestBstCountCustomInsertFind(t *testing.T) {
 	bst := new(BstCmp[*big.Int])
-	bstCount := NewBstCount[*big.Int](bst)
+	bstCount := NewBstCount(bst)
 
 	start := int64(1)
 	limit := int64(10)

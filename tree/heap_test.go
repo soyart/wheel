@@ -2,11 +2,67 @@ package tree
 
 import (
 	"math/big"
-	"sort"
+	"slices"
 	"testing"
 
 	"github.com/soyart/wheel"
 )
+
+func TestHeapSliceAndDrain(t *testing.T) {
+	data := []uint64{10, 40, 30, 20, 50}
+	asc, dsc := NewHeap[uint64](wheel.Ascending, HeapPreAlloc(100)), NewHeap[uint64](wheel.Descending, HeapPreAlloc(3))
+	for i := range data {
+		asc.Push(data[i])
+		dsc.Push(data[i])
+	}
+	// For each heap [asc, dsc], we test:
+	// Expected values
+	// Idempotency of Slice
+	// Consumption by Drain
+
+	if !slices.Equal(asc.Slice(), []uint64{10, 20, 30, 40, 50}) {
+		t.Errorf("unexpected asc.Slice: %v", asc.Slice())
+	}
+	if !slices.Equal(asc.Slice(), []uint64{10, 20, 30, 40, 50}) {
+		t.Errorf("unexpected asc.Slice: %v", asc.Slice())
+	}
+	if !slices.Equal(asc.Drain(), []uint64{10, 20, 30, 40, 50}) && !asc.IsEmpty() {
+		t.Errorf("asc is not empty after Drain: %v", asc)
+	}
+	if !slices.Equal(dsc.Slice(), []uint64{50, 40, 30, 20, 10}) {
+		t.Errorf("unexpected dsc.Slice: %v", dsc.Slice())
+	}
+	if !slices.Equal(dsc.Slice(), []uint64{50, 40, 30, 20, 10}) {
+		t.Errorf("unexpected dsc.Slice: %v", dsc.Slice())
+	}
+	if !slices.Equal(dsc.Drain(), []uint64{50, 40, 30, 20, 10}) && !dsc.IsEmpty() {
+		t.Errorf("dsc is not empty after Drain: %v", asc)
+	}
+}
+
+func TestNewHeapFrom(t *testing.T) {
+	data := []float64{10, 50, 30, 40, 20}
+	heap := NewHeapFrom(wheel.Ascending, data, HeapPreAlloc(67))
+	if !slices.Equal(heap.Slice(), []float64{10, 20, 30, 40, 50}) {
+		t.Errorf("unexpected heap.Slice: %v", heap.Slice())
+	}
+
+	heap.Push(100)
+	heap.Push(60)
+	heap.Push(70)
+	heap.Push(90)
+	heap.Push(80)
+
+	if !slices.Equal(heap.Slice(), []float64{10, 20, 30, 40, 50, 60, 70, 80, 90, 100}) {
+		t.Errorf("unexpected heap.Slice: %v", heap.Slice())
+	}
+	if actual, expected := cap(heap.Items), 67; actual != expected {
+		t.Errorf("unexpected backing slice prealloc capacity %d, expecting %d", actual, expected)
+	}
+	if actual, expected := len(heap.Items), 10; actual != expected {
+		t.Errorf("unexpected backing slice prealloc length %d, expecting %d", actual, expected)
+	}
+}
 
 func TestHeapifyUp(t *testing.T) {
 	ints := []int{6, 1, 3, 3, 2, 4, 5}
@@ -130,20 +186,15 @@ func TestHeapCmp(t *testing.T) {
 		t.Fatalf("unexpected root node, expecting %d, got %d", min, v)
 	}
 
-	sort.Slice(ints, func(i, j int) bool {
-		return ints[i] < ints[j]
-	})
-
+	slices.Sort(ints)
 	c := 0
 	for !h.IsEmpty() {
 		popped := h.PopValue().Int64()
 		expected := ints[c]
-
 		if popped != expected {
 			t.Logf("Pop #%d:unexpected value: expecting %d, got %d", c, expected, popped)
 			t.Fatalf("unexpected value")
 		}
-
 		c++
 	}
 }
