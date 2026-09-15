@@ -25,11 +25,11 @@ func HeapPreAlloc(size int) HeapOption {
 }
 
 func NewHeap[T cmp.Ordered](order wheel.SortOrder, opts ...HeapOption) *Heap[T] {
-	return NewHeapCustom[T](order, wheel.FactoryLessFuncOrdered[T](order), opts...)
+	return NewHeapCustom(order, wheel.FactoryLessFuncOrdered[T](order), opts...)
 }
 
 func NewHeapCmp[T wheel.CmpOrdered[T]](order wheel.SortOrder, opts ...HeapOption) *Heap[T] {
-	return NewHeapCustom[T](order, wheel.FactoryLessFuncCmp[T](order), opts...)
+	return NewHeapCustom(order, wheel.FactoryLessFuncCmp[T](order), opts...)
 }
 
 // NewHeapCustom builds a Heap[T] ordered by the given lessFunc, for T that

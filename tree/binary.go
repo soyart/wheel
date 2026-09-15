@@ -4,34 +4,34 @@ import (
 	"github.com/soyart/wheel/list"
 )
 
-// BinaryTreeBasic is basic, minimal binary tree with node type NODE
-type BinaryTreeBasic[NODE any] interface {
+// BinaryTreeBasic is basic, minimal binary tree with node type N
+type BinaryTreeBasic[N any] interface {
 	// Insert inserts a node to the tree,
 	// returning bool indicating if a node was added.
 	// False is returned if an existing node was replaced
 	// with new node, leaving tree size unchanged.
-	Insert(node NODE) bool
+	Insert(node N) bool
 
 	// Remove removes node, returning whether the removal
 	// was successful.
-	Remove(node NODE) bool
+	Remove(node N) bool
 
-	Find(node NODE) bool
+	Find(node N) bool
 }
 
 // BinaryTree have extra methods to work with nodes.
-// POS is any type used for indexing a node,
-// e.g. a bintree with backing arrays may use int as POS.
-type BinaryTree[POS any, NODE any] interface {
-	BinaryTreeBasic[NODE]
+// P is any type used for indexing a node,
+// e.g. a bintree with backing arrays may use int as P.
+type BinaryTree[P any, N any] interface {
+	BinaryTreeBasic[N]
 
-	Parent(node POS) POS
-	LeftChild(node POS) POS
-	RightChild(node POS) POS
-	Node(pos POS) NODE
+	Parent(node P) P
+	LeftChild(node P) P
+	RightChild(node P) P
+	Node(pos P) N
 
-	NodeIsRoot(node POS) bool
-	NodeIsNull(node POS) bool
+	NodeIsRoot(node P) bool
+	NodeIsNull(node P) bool
 }
 
 type BinaryTreeNode[T any] interface {
@@ -49,11 +49,9 @@ type BinaryTreeNodeWrapper[T any] struct {
 	right *BinaryTreeNodeWrapper[T]
 }
 
-func (n *BinaryTreeNodeWrapper[T]) Left() BinaryTreeNode[T] { return n.left }
-
+func (n *BinaryTreeNodeWrapper[T]) Left() BinaryTreeNode[T]  { return n.left }
 func (n *BinaryTreeNodeWrapper[T]) Right() BinaryTreeNode[T] { return n.right }
-
-func (n *BinaryTreeNodeWrapper[T]) Value() T { return n.value }
+func (n *BinaryTreeNodeWrapper[T]) Value() T                 { return n.value }
 
 func (n *BinaryTreeNodeWrapper[T]) IsNull() bool {
 	return !n.ok &&
@@ -64,84 +62,70 @@ func (n *BinaryTreeNodeWrapper[T]) IsLeaf() bool {
 	return n.left == nil && n.right == nil
 }
 
-func Inorder[POS any, NODE any](
-	tree BinaryTree[POS, NODE],
-	node POS,
-	f func(NODE) error,
+func Inorder[P any, N any](
+	tree BinaryTree[P, N],
+	node P,
+	walk func(N) error,
 ) error {
-	stack := list.NewStackSafe[POS]()
+	stack := list.NewStackSafe[P]()
 	curr := node
-
 	for !tree.NodeIsNull(curr) || !stack.IsEmpty() {
 		for !tree.NodeIsNull(curr) {
 			stack.Push(curr)
 			curr = tree.LeftChild(curr)
 		}
-
 		curr = *stack.Pop()
-		if err := f(tree.Node(curr)); err != nil {
+		if err := walk(tree.Node(curr)); err != nil {
 			return err
 		}
-
 		curr = tree.RightChild(curr)
 	}
 
 	return nil
 }
 
-func InorderRecurse[POS any, NODE any](
-	tree BinaryTree[POS, NODE],
-	node POS,
-	f func(NODE) error,
+func InorderRecurse[P any, N any](
+	tree BinaryTree[P, N],
+	node P,
+	walk func(N) error,
 ) error {
-	if err := InorderRecurse(tree, tree.LeftChild(node), f); err != nil {
+	if err := InorderRecurse(tree, tree.LeftChild(node), walk); err != nil {
 		return err
 	}
-
-	if err := f(tree.Node(node)); err != nil {
+	if err := walk(tree.Node(node)); err != nil {
 		return err
 	}
-
-	return InorderRecurse(tree, tree.RightChild(node), f)
+	return InorderRecurse(tree, tree.RightChild(node), walk)
 }
 
-func InorderNode[NODE BinaryTreeNode[any]](
-	node NODE,
-	f func(NODE) error,
-) error {
-	stack := list.NewStackSafe[NODE]()
+func InorderNode[N BinaryTreeNode[any]](node N, f func(N) error) error {
+	stack := list.NewStackSafe[N]()
 	curr := node
 
 	for !curr.IsNull() || !stack.IsEmpty() {
 		for !curr.IsNull() {
 			stack.Push(curr)
-			curr = curr.Left().(NODE)
+			curr = curr.Left().(N)
 		}
-
 		if err := f(curr); err != nil {
 			return err
 		}
 
 		curr = *stack.Pop()
-		curr = curr.Right().(NODE)
+		curr = curr.Right().(N)
 	}
 
 	return nil
 }
 
-func InorderNodeRecurse[T any, NODE BinaryTreeNode[T]](
-	node NODE,
-	f func(NODE) error,
-) error {
-	if err := InorderNodeRecurse[T, NODE](node.Left().(NODE), f); err != nil {
+func InorderNodeRecurse[T any, N BinaryTreeNode[T]](node N, f func(N) error) error {
+	if err := InorderNodeRecurse(node.Left().(N), f); err != nil {
 		return err
 	}
-
 	if err := f(node); err != nil {
 		return err
 	}
-
-	if err := InorderNodeRecurse[T, NODE](node.Right().(NODE), f); err != nil {
+	if err := InorderNodeRecurse(node.Right().(N), f); err != nil {
 		return err
 	}
 
