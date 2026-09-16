@@ -25,17 +25,17 @@ func HeapPreAlloc(size int) HeapOption {
 }
 
 func NewHeap[T cmp.Ordered](order wheel.SortOrder, opts ...HeapOption) *Heap[T] {
-	return NewHeapCustom(order, wheel.FactoryLessFuncOrdered[T](order), opts...)
+	return NewHeapCustom(wheel.FactoryLessFuncOrdered[T](order), opts...)
 }
 
 func NewHeapCmp[T wheel.CmpOrdered[T]](order wheel.SortOrder, opts ...HeapOption) *Heap[T] {
-	return NewHeapCustom(order, wheel.FactoryLessFuncCmp[T](order), opts...)
+	return NewHeapCustom(wheel.FactoryLessFuncCmp[T](order), opts...)
 }
 
 // NewHeapCustom builds a Heap[T] ordered by the given lessFunc, for T that
 // isn't cmp.Ordered/CmpOrdered itself (e.g. a struct ordered by one of its
 // fields). Pair it with wheel.LessFuncBy to order by an extracted key.
-func NewHeapCustom[T any](order wheel.SortOrder, lessFunc wheel.LessFunc[T], opts ...HeapOption) *Heap[T] {
+func NewHeapCustom[T any](lessFunc wheel.LessFunc[T], opts ...HeapOption) *Heap[T] {
 	options := parseOptions(opts...)
 	return &Heap[T]{
 		Items:    make([]T, 0, options.preAlloc),

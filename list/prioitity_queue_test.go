@@ -51,8 +51,7 @@ func TestPq(t *testing.T) {
 
 // testPop orders foo[T] by its value field, since foo[T] itself is not cmp.Ordered.
 func testPop[T cmp.Ordered](t *testing.T, order wheel.SortOrder, items []foo[T]) foo[T] {
-	pq := NewPriorityQueueCustom[foo[T]](order, wheel.LessFuncBy(order, foo[T].GetValue))
-
+	pq := NewPriorityQueueCustom(order, wheel.LessFuncBy(order, foo[T].GetValue))
 	for _, item := range items {
 		heap.Push(pq, item)
 	}
@@ -79,7 +78,7 @@ func testArbitaryUpdate(t *testing.T) {
 		seventy,
 	}
 
-	pq := NewPriorityQueueCustom[foo[float64]](maxHeap, wheel.LessFuncBy(maxHeap, foo[float64].GetValue))
+	pq := NewPriorityQueueCustom(maxHeap, wheel.LessFuncBy(maxHeap, foo[float64].GetValue))
 
 	for _, item := range foosFloat {
 		heap.Push(pq, item)

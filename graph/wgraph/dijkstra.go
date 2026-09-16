@@ -19,25 +19,25 @@ type NodeDijkstra[W WeightDijkstra] interface {
 
 type GraphDijkstra[W WeightDijkstra] interface {
 	GraphWeighted[NodeDijkstra[W], EdgeWeighted[W, NodeDijkstra[W]], W]
-	DijkstraShortestPathFrom(startNode NodeDijkstra[W]) *DijstraShortestPath[W]
+	DijkstraShortestPathFrom(start NodeDijkstra[W]) *DijstraShortestPath[W]
 }
 
-// This type is the Dijkstra shortest path answer. It has 2 fields, (1) `From` the 'from' node, and (2) `Paths`.
-// DijkstraShortestPath.Paths is a hash map where the key is a node, and the value is the previous node with the lowest cost to that key node.
+// DijstraShortestPath is the Dijkstra shortest path answer. It has 2 fields, (1) `From` the 'from' node, and (2) `Paths`.
+// [DijstraShortestPath.Paths] is a hash map where the key is a node, and the value is the previous node with the lowest cost to that key node.
 // Because each instance holds all best route to every reachable node from From node, you can reconstruct the shortest path from any nodes in
-// that Paths map with ReconstructPathTo
+// that Paths map with [DijstraShortestPath.ReconstructPathTo]
 type DijstraShortestPath[W WeightDijkstra] struct {
 	From  NodeDijkstra[W]
 	Paths map[NodeDijkstra[W]]NodeDijkstra[W]
 }
 
-// NewDikstraGraph calls NewGraphWeightedUnsafe[T], and return the wrapped graph.
+// NewDijkstraGraphUnsafe calls NewGraphWeightedUnsafe[T], and return the wrapped graph.
 // Alternatively, you can create your own implementation of GraphWeighted[T].
 func NewDijkstraGraphUnsafe[W WeightDijkstra](
 	directed bool,
 ) GraphDijkstra[W] {
 	graphImpl := &GraphDijkstraImpl[W]{
-		graph: new(HashMapGraphWeightedImpl[
+		graph: new(HashMapGraphWeighted[
 			NodeDijkstra[W],
 			EdgeWeighted[W, NodeDijkstra[W]],
 			W,
@@ -45,19 +45,14 @@ func NewDijkstraGraphUnsafe[W WeightDijkstra](
 	}
 
 	graphImpl.SetDirection(directed)
-
 	return graphImpl
 }
 
-// NewDikstraGraph calls NewGraphWeighted[T], and return the wrapped graph.
-// Alternatively, you can create your own implementation of GraphWeighted[T].
+// NewDijkstraGraph calls [NewGraphWeighted], and return the wrapped graph.
+// Alternatively, you can create your own implementation of [GraphWeighted]
 func NewDijkstraGraph[T WeightDijkstra](directed bool) GraphDijkstra[T] {
 	return &GraphDijkstraImpl[T]{
-		graph: NewGraphWeighted[
-			NodeDijkstra[T],
-			EdgeWeighted[T, NodeDijkstra[T]],
-			T,
-		](directed),
+		graph: NewGraphWeighted[NodeDijkstra[T], EdgeWeighted[T, NodeDijkstra[T]]](directed),
 	}
 }
 

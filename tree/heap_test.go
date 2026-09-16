@@ -134,35 +134,26 @@ func TestHeapifyUp(t *testing.T) {
 func TestHeapifyDown(t *testing.T) {
 	ints := []int{6, 1, 3, 3, 2, 4, 5}
 	pq := NewHeap[int](wheel.Descending)
-
 	for i := range ints {
 		pq.Push(ints[i])
 	}
 
 	intsHeap := make([]int, len(pq.Items))
-	for i := range pq.Items {
-		intsHeap[i] = pq.Items[i]
-	}
+	copy(intsHeap, pq.Items)
 
 	// t.Log("intsHeap", intsHeap)
-
 	var c int
 	for !pq.IsEmpty() {
 		max := wheel.MaxValuer(pq.Items)
 		popped := pq.PopValue()
-
 		items := make([]int, pq.Len())
-		for i := range pq.Items {
-			items[i] = pq.Items[i]
-		}
+		copy(items, pq.Items)
 
 		// t.Log("l", l, "max", max, "pop", popped, "items", items)
-
 		if max != popped {
 			t.Logf("pop #%d expecting max %d, got %d", c+1, max, popped)
 			t.Fatal("Unexpected popped value")
 		}
-
 		c++
 	}
 }

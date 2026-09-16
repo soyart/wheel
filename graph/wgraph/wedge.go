@@ -11,6 +11,7 @@ type EdgeWeightedImpl[T Weight, N NodeWeighted[T]] struct {
 	weight T
 }
 
+// ToNode returns e as N
 // If E is an edge from nodes A to B, then E.GetToNode() returns B.
 func (e *EdgeWeightedImpl[T, N]) ToNode() N {
 	return e.toNode

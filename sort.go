@@ -18,16 +18,11 @@ type CmpOrdered[T any] interface {
 	Cmp(T) int
 }
 
-func badOrder(ordering SortOrder) string {
-	return fmt.Sprintf("bad SortOrder %d", ordering)
-}
-
 func (d SortOrder) IsValid() bool {
 	switch d {
 	case Ascending, Descending:
 		return true
 	}
-
 	return false
 }
 
@@ -41,40 +36,33 @@ func LessFuncOrdered[T cmp.Ordered](ordering SortOrder) func(T, T) bool {
 		return func(v1, v2 T) bool {
 			return v1 <= v2
 		}
-
 	case Descending:
 		return func(v1, v2 T) bool {
 			return v1 >= v2
 		}
 	}
-
 	panic(badOrder(ordering))
 }
 
-// Less implementation for constraints.Ordered
-func FactoryLessFuncOrdered[T cmp.Ordered](
-	order SortOrder,
-) LessFunc[T] {
+// FactoryLessFuncOrdered return default [LessFunc] for [cmp.Ordered] types
+func FactoryLessFuncOrdered[T cmp.Ordered](order SortOrder) LessFunc[T] {
 	if order == Ascending {
 		return func(items []T, i, j int) bool {
 			return items[i] < items[j]
 		}
 	}
-
 	return func(items []T, i, j int) bool {
 		return items[i] > items[j]
 	}
 }
 
-func FactoryLessFuncCmp[T CmpOrdered[T]](
-	order SortOrder,
-) LessFunc[T] {
+// FactoryLessFuncCmp return default [LessFunc] for [CmpOrdered] types
+func FactoryLessFuncCmp[T CmpOrdered[T]](order SortOrder) LessFunc[T] {
 	if order == Ascending {
 		return func(items []T, i, j int) bool {
 			return items[i].Cmp(items[j]) < 0
 		}
 	}
-
 	return func(items []T, i, j int) bool {
 		return items[i].Cmp(items[j]) > 0
 	}
@@ -85,17 +73,17 @@ func FactoryLessFuncCmp[T CmpOrdered[T]](
 // behind an interface just to get a uniform GetValue()-based comparator:
 // useful when T is a rich type (e.g. a graph node) rather than an ordered
 // value itself.
-func LessFuncBy[T any, K cmp.Ordered](
-	order SortOrder,
-	keyFunc func(T) K,
-) LessFunc[T] {
+func LessFuncBy[T any, K cmp.Ordered](order SortOrder, keyFunc func(T) K) LessFunc[T] {
 	if order == Ascending {
 		return func(items []T, i, j int) bool {
 			return keyFunc(items[i]) < keyFunc(items[j])
 		}
 	}
-
 	return func(items []T, i, j int) bool {
 		return keyFunc(items[i]) > keyFunc(items[j])
 	}
+}
+
+func badOrder(ordering SortOrder) string {
+	return fmt.Sprintf("bad SortOrder %d", ordering)
 }

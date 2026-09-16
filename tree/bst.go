@@ -20,13 +20,10 @@ func (b *Bst[T]) Insert(item T) bool {
 		left:  nil,
 		right: nil,
 	}
-
 	if !b.Root.ok {
 		b.Root = node
-
 		return true
 	}
-
 	return BstInsert(
 		&b.Root,
 		&node,
@@ -49,16 +46,13 @@ func BstInsert[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], node *BinaryTreeNo
 		// Found leaf node
 		case curr == nil:
 			*curr = *node
-
 			return true
 
 		// Do nothing if duplicate nodes
 		case node.value == curr.value:
 			exists := curr.ok
-
 			node.ok = true
 			curr = node
-
 			return !exists
 
 		case node.value < curr.value:
@@ -66,7 +60,6 @@ func BstInsert[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], node *BinaryTreeNo
 				curr.left = node
 				return true
 			}
-
 			curr = curr.left
 
 		case node.value > curr.value:
@@ -74,7 +67,6 @@ func BstInsert[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], node *BinaryTreeNo
 				curr.right = node
 				return true
 			}
-
 			curr = curr.right
 		}
 	}
@@ -127,13 +119,11 @@ func BstRemove[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], target T) *BinaryT
 
 		default:
 			replacement := digLeft(root.right)
-
 			root.ok = false
 			root.value = replacement.value
 			root.right = BstRemove(root.right, replacement.value)
 		}
 	}
-
 	return root
 }
 
@@ -143,7 +133,6 @@ func digLeft[T any](root *BinaryTreeNodeWrapper[T]) *BinaryTreeNodeWrapper[T] {
 	for curr.left != nil && curr.left.ok {
 		curr = curr.left
 	}
-
 	return curr
 }
 
@@ -164,15 +153,12 @@ func BstInsertRecurse[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], node *Binar
 	case !root.ok:
 		root = node
 		root.ok = true
-
 		return true
 
 	case node.value == root.value:
 		exists := root.ok
-
 		node.ok = true
 		root = node
-
 		return !exists
 
 	case node.value < root.value:
@@ -180,7 +166,6 @@ func BstInsertRecurse[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], node *Binar
 			root.left = node
 			return true
 		}
-
 		return BstInsertRecurse(root.left, node)
 
 	case node.value > root.value:
@@ -188,7 +173,6 @@ func BstInsertRecurse[T cmp.Ordered](root *BinaryTreeNodeWrapper[T], node *Binar
 			root.right = node
 			return true
 		}
-
 		return BstInsertRecurse(root.right, node)
 	}
 

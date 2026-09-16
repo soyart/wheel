@@ -7,7 +7,7 @@ import (
 	"github.com/soyart/wheel/tree"
 )
 
-// GraphDijkstraImpl[T] wraps GraphWeightedImpl[T], where T is generic type numeric types and S is ~string.
+// GraphDijkstraImpl wraps [GraphWeighted], where T is generic type numeric types and S is ~string.
 // It uses HashMapGraphWeighted as the underlying wheel structure.
 type GraphDijkstraImpl[T WeightDijkstra] struct {
 	graph GraphWeighted[NodeDijkstra[T], EdgeWeighted[T, NodeDijkstra[T]], T]
@@ -61,7 +61,7 @@ func (g *GraphDijkstraImpl[T]) GetNodeEdges(node NodeDijkstra[T]) []EdgeWeighted
 	return g.graph.GetNodeEdges(node)
 }
 
-// DjisktraFrom takes a *NodeImpl[T] startNode, and finds the shortest path from startNode to all other nodes.
+// DijkstraShortestPathFrom takes a [NodeDijkstra] startNode, and finds the shortest path from startNode to all other nodes.
 // This implementation uses PriorityQueue[T], so the nodes' values must satisfy constraints.Ordered.
 func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T]) *DijstraShortestPath[T] {
 	startNode.SetValueOrCost(0)
@@ -72,7 +72,7 @@ func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T
 
 	// pq := list.NewPriorityQueue[T](wheel.Ascending)
 	// heap.Push(pq, startNode)
-	pq := tree.NewHeapCustom[NodeDijkstra[T]](wheel.Ascending, wheel.LessFuncBy(wheel.Ascending, NodeDijkstra[T].GetValue))
+	pq := tree.NewHeapCustom(wheel.LessFuncBy(wheel.Ascending, NodeDijkstra[T].GetValue))
 	pq.Push(startNode)
 
 	for !pq.IsEmpty() {
