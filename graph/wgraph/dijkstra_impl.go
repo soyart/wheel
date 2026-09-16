@@ -67,16 +67,11 @@ func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T
 	startNode.SetValueOrCost(0)
 	startNode.SetPrevious(nil)
 
-	visited := make(map[NodeDijkstra[T]]bool)
 	parents := make(map[NodeDijkstra[T]]NodeDijkstra[T])
-
-	// pq := list.NewPriorityQueue[T](wheel.Ascending)
-	// heap.Push(pq, startNode)
 	pq := tree.NewHeapCustom(wheel.LessFuncBy(wheel.Ascending, NodeDijkstra[T].GetValue))
 	pq.Push(startNode)
 
 	for !pq.IsEmpty() {
-		// Pop the top of pq and mark it as visited
 		current, ok := pq.Pop()
 		if !ok {
 			panic("popped from empty heap - should not happen")
@@ -99,15 +94,8 @@ func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T
 		// 2nd loop: push to pq/heap
 		for _, edge := range edges {
 			edgeNode := edge.ToNode()
-			// Skip visited
-			if visited[edgeNode] {
-				continue
-			}
-			visited[edgeNode] = true
 			pq.Push(edgeNode)
 		}
-
-		visited[current] = true
 	}
 
 	return &DijstraShortestPath[T]{
