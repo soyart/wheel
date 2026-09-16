@@ -140,7 +140,7 @@ func TestDijkstraAgainstReferenceOracle(t *testing.T) {
 	const trialsPerMode = 20000
 
 	for _, allowCycles := range []bool{false, true} {
-		for seed := int64(0); seed < trialsPerMode; seed++ {
+		for seed := range int64(trialsPerMode) {
 			n, edges := randomGraph(seed, allowCycles)
 			want := referenceShortestPaths(n, edges)
 
