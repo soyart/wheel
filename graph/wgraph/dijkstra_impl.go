@@ -61,40 +61,63 @@ func (g *GraphDijkstraImpl[T]) GetNodeEdges(node NodeDijkstra[T]) []EdgeWeighted
 	return g.graph.GetNodeEdges(node)
 }
 
+// dijkstraQueueItem is a priority queue entry carrying a node together with
+// the distance it was queued at, frozen at push time. The heap orders on
+// this frozen dist, never on node.GetValue() directly, so a node's queue
+// position can never go stale relative to its own (mutable) field: a pop
+// whose dist no longer matches node.GetValue() has been superseded by a
+// cheaper relaxation pushed later, and is simply discarded.
+type dijkstraQueueItem[T WeightDijkstra] struct {
+	node NodeDijkstra[T]
+	dist T
+}
+
 // DijkstraShortestPathFrom takes a [NodeDijkstra] startNode, and finds the shortest path from startNode to all other nodes.
 // This implementation uses PriorityQueue[T], so the nodes' values must satisfy constraints.Ordered.
 func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T]) *DijstraShortestPath[T] {
 	startNode.SetValueOrCost(0)
 	startNode.SetPrevious(nil)
 
+	visited := make(map[NodeDijkstra[T]]bool)
 	parents := make(map[NodeDijkstra[T]]NodeDijkstra[T])
-	pq := tree.NewHeapCustom(wheel.LessFuncBy(wheel.Ascending, NodeDijkstra[T].GetValue))
-	pq.Push(startNode)
+
+	pq := tree.NewHeapCustom(wheel.LessFuncBy(
+		wheel.Ascending,
+		func(item dijkstraQueueItem[T]) T { return item.dist },
+	))
+	pq.Push(dijkstraQueueItem[T]{node: startNode, dist: 0})
 
 	for !pq.IsEmpty() {
-		current, ok := pq.Pop()
+		item, ok := pq.Pop()
 		if !ok {
 			panic("popped from empty heap - should not happen")
 		}
 
-		// 1st loop: finalize each edgeNode's cost
-		edges := g.GetNodeEdges(current)
-		for _, edge := range edges {
+		// Stale entry: a cheaper relaxation already superseded it, or this
+		// node was already finalized via another entry. Either way, its
+		// distance was already used to relax its neighbors; discard it.
+		if item.dist != item.node.GetValue() || visited[item.node] {
+			continue
+		}
+		visited[item.node] = true
+
+		for _, edge := range g.GetNodeEdges(item.node) {
 			edgeNode := edge.ToNode()
+			if visited[edgeNode] {
+				continue
+			}
+
 			// If getting to edge from current is cheaper that the edge current cost state,
 			// update it to pass via current instead
-			if newCost := current.GetValue() + edge.GetWeight(); newCost < edgeNode.GetValue() {
+			if newCost := item.dist + edge.GetWeight(); newCost < edgeNode.GetValue() {
 				edgeNode.SetValueOrCost(newCost)
-				edgeNode.SetPrevious(current)
+				edgeNode.SetPrevious(item.node)
 
 				// Save (best) path answer to parents
-				parents[edgeNode] = current
+				parents[edgeNode] = item.node
+
+				pq.Push(dijkstraQueueItem[T]{node: edgeNode, dist: newCost})
 			}
-		}
-		// 2nd loop: push to pq/heap
-		for _, edge := range edges {
-			edgeNode := edge.ToNode()
-			pq.Push(edgeNode)
 		}
 	}
 
