@@ -72,12 +72,11 @@ func (h *Heap[T]) Pop() (T, bool) {
 		return zero, false
 	}
 
+	// Extract root and slice up the backing slice, before heapifying down
 	root := h.Items[0]
 	lastIdx := h.Len() - 1
-
 	h.Items[0] = h.Items[lastIdx]
 	h.Items = h.Items[:lastIdx]
-
 	h.heapifyDown(0)
 
 	return root, true
@@ -97,22 +96,22 @@ func (h *Heap[T]) Clone() Heap[T] {
 }
 
 // Slice returns the items as sorted slice.
-// Can be called many times with 0 changes to h.
+// Can be called many times with no changes to h.
 func (h *Heap[T]) Slice() []T {
 	clone := h.Clone()
-	slice := make([]T, h.Len())
-	for i := range clone.Len() {
-		slice[i] = clone.PopValue()
-	}
-	return slice
+	return clone.Drain()
 }
 
 // Drain returns the items as sorted slice.
 // The return value is the same as with [Heap.Slice], but Drain consumes the whole of h.
 func (h *Heap[T]) Drain() []T {
 	slice := make([]T, h.Len())
-	for i := range h.Len() {
-		slice[i] = h.PopValue()
+	for i := 0; !h.IsEmpty(); i++ {
+		popped, ok := h.Pop()
+		if !ok {
+			panic("consumed during Drain")
+		}
+		slice[i] = popped
 	}
 	return slice
 }
@@ -152,7 +151,6 @@ func (h *Heap[T]) heapifyUp(from int) {
 		if !h.LessFunc(h.Items, curr, parent) {
 			break
 		}
-
 		h.swap(curr, parent)
 		curr = parent
 	}
