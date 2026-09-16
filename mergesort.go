@@ -6,25 +6,19 @@ import (
 
 func MergeSort[T cmp.Ordered](arr []T, ordering SortOrder) []T {
 	length := len(arr)
-
 	if length < 2 {
 		return arr
 	}
-
 	if length == 2 {
 		a, b := arr[0], arr[1]
-
 		lessFunc := LessFuncOrdered[T](ordering)
-
 		if lessFunc(a, b) {
 			return arr
 		}
-
 		return []T{b, a}
 	}
 
 	mid := length / 2
-
 	left := MergeSort(arr[:mid], ordering)
 	right := MergeSort(arr[mid:], ordering)
 
@@ -63,25 +57,18 @@ func MergeSortCmp[T CmpOrdered[T]](arr []T, ordering SortOrder) []T {
 	})
 }
 
-func MergeSortedArrays[T any](
-	a []T,
-	b []T,
-	lessFunc func(a T, b T) bool,
-) []T {
+func MergeSortedArrays[T any](a []T, b []T, lessFunc func(a T, b T) bool) []T {
 	var p, ap, bp int
 	sorted := make([]T, len(a)+len(b))
 
 	for ap < len(a) && bp < len(b) {
 		elemA, elemB := a[ap], b[bp]
-
 		if lessFunc(elemA, elemB) {
 			sorted[p] = elemA
 			ap++
 			p++
-
 			continue
 		}
-
 		sorted[p] = elemB
 		bp++
 		p++
@@ -92,12 +79,10 @@ func MergeSortedArrays[T any](
 		ap++
 		p++
 	}
-
 	for bp < len(b) {
 		sorted[p] = b[bp]
 		bp++
 		p++
 	}
-
 	return sorted
 }

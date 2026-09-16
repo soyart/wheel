@@ -105,7 +105,7 @@ func BstCmpFind[T wheel.CmpOrdered[T]](root *BinaryTreeNodeWrapper[T], target T)
 	}
 }
 
-// BstRemove removes target from subtree tree, returning the new root of the subtree
+// BstCmpRemove removes target from subtree tree, returning the new root of the subtree
 func BstCmpRemove[T wheel.CmpOrdered[T]](root *BinaryTreeNodeWrapper[T], target T) *BinaryTreeNodeWrapper[T] {
 	if root == nil {
 		return nil

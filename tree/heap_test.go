@@ -78,13 +78,13 @@ func TestHeapifyUp(t *testing.T) {
 
 	l := len(pq.Items)
 	for curr := range pq.Items {
-		// t.Log("index", curr, "value", pq.Items[curr].GetValue())
+		// t.Log("index", curr, "value", pq.Items[curr])
 
 		parent := ParentIdx(curr)
 		if parent >= 0 {
 			if pq.LessFunc(pq.Items, curr, parent) {
-				valueCurr := pq.Items[curr].GetValue()
-				valueParent := pq.Items[parent].GetValue()
+				valueCurr := pq.Items[curr]
+				valueParent := pq.Items[parent]
 
 				t.Logf(
 					"node at %d is less than parent at %d: node %v vs parent %v",
@@ -101,8 +101,8 @@ func TestHeapifyUp(t *testing.T) {
 		}
 
 		if !pq.LessFunc(pq.Items, curr, childLeft) {
-			valueCurr := pq.Items[curr].GetValue()
-			valueLeft := pq.Items[childLeft].GetValue()
+			valueCurr := pq.Items[curr]
+			valueLeft := pq.Items[childLeft]
 
 			t.Logf(
 				"node at %d is less than left child at %d: node %v vs parent %v",
@@ -118,8 +118,8 @@ func TestHeapifyUp(t *testing.T) {
 		}
 
 		if !pq.LessFunc(pq.Items, curr, childRight) {
-			valueCurr := pq.Items[curr].GetValue()
-			valueRight := pq.Items[childRight].GetValue()
+			valueCurr := pq.Items[curr]
+			valueRight := pq.Items[childRight]
 
 			t.Logf(
 				"node at %d is less than left child at %d: node %v vs parent %v",
@@ -134,35 +134,26 @@ func TestHeapifyUp(t *testing.T) {
 func TestHeapifyDown(t *testing.T) {
 	ints := []int{6, 1, 3, 3, 2, 4, 5}
 	pq := NewHeap[int](wheel.Descending)
-
 	for i := range ints {
 		pq.Push(ints[i])
 	}
 
 	intsHeap := make([]int, len(pq.Items))
-	for i := range pq.Items {
-		intsHeap[i] = pq.Items[i].GetValue()
-	}
+	copy(intsHeap, pq.Items)
 
 	// t.Log("intsHeap", intsHeap)
-
 	var c int
 	for !pq.IsEmpty() {
 		max := wheel.MaxValuer(pq.Items)
 		popped := pq.PopValue()
-
 		items := make([]int, pq.Len())
-		for i := range pq.Items {
-			items[i] = pq.Items[i].GetValue()
-		}
+		copy(items, pq.Items)
 
 		// t.Log("l", l, "max", max, "pop", popped, "items", items)
-
 		if max != popped {
 			t.Logf("pop #%d expecting max %d, got %d", c+1, max, popped)
 			t.Fatal("Unexpected popped value")
 		}
-
 		c++
 	}
 }

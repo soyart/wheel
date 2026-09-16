@@ -22,9 +22,7 @@ func BFS[T, E any](
 	if !found {
 		return nil, -1, false
 	}
-
 	shortestPath, hops := BFSShortestPathReconstruct(rawPath, src, dst)
-
 	return shortestPath, hops, found
 }
 
@@ -52,7 +50,6 @@ func BFSSearchGeneric[T, E any](
 		}
 
 		current := *popped
-
 		neighbors := g.GetNodeNeighbors(current)
 		for _, neighbor := range neighbors {
 			if visited[neighbor] {
@@ -68,7 +65,6 @@ func BFSSearchGeneric[T, E any](
 			prev[neighbor] = current
 		}
 	}
-
 	return prev, found
 }
 
@@ -90,24 +86,17 @@ func BFSShortestPathReconstruct[T any](
 		return shortestPath, hops
 	}
 
-	for {
-		if current == src {
-			break
-		}
-
+	for current != src {
 		next, found := backwardPath[current]
 		if !found {
 			break
 		}
-
 		shortestPath = append(shortestPath, next)
 		current = next
-
 		hops++
 	}
 
 	wheel.ReverseInPlace(shortestPath)
-
 	return shortestPath, hops
 }
 

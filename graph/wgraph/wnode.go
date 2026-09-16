@@ -22,7 +22,6 @@ type NodeDijkstraImpl[T WeightDijkstra] struct {
 	Previous NodeDijkstra[T]
 }
 
-// Implements data.Valuer[T]
 func (n *NodeWeightedImpl[T]) GetValue() T {
 	return n.ValueOrCost
 }
