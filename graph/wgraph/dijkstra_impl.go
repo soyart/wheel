@@ -85,18 +85,23 @@ func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T
 		wheel.Ascending,
 		func(item dijkstraQueueItem[T]) T { return item.dist },
 	))
-	pq.Push(dijkstraQueueItem[T]{node: startNode, dist: 0})
+	pq.Push(dijkstraQueueItem[T]{
+		node: startNode,
+		dist: 0,
+	})
 
 	for !pq.IsEmpty() {
 		item, ok := pq.Pop()
 		if !ok {
 			panic("popped from empty heap - should not happen")
 		}
-
 		// Stale entry: a cheaper relaxation already superseded it, or this
 		// node was already finalized via another entry. Either way, its
 		// distance was already used to relax its neighbors; discard it.
-		if item.dist != item.node.GetValue() || visited[item.node] {
+		if item.dist != item.node.GetValue() {
+			continue
+		}
+		if visited[item.node] {
 			continue
 		}
 		visited[item.node] = true
@@ -115,8 +120,10 @@ func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T
 
 				// Save (best) path answer to parents
 				parents[edgeNode] = item.node
-
-				pq.Push(dijkstraQueueItem[T]{node: edgeNode, dist: newCost})
+				pq.Push(dijkstraQueueItem[T]{
+					node: edgeNode,
+					dist: newCost,
+				})
 			}
 		}
 	}
