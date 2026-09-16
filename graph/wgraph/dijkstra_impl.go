@@ -82,19 +82,10 @@ func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T
 			panic("popped from empty heap - should not happen")
 		}
 
-		visited[current] = true
+		// 1st loop: finalize each edgeNode's cost
 		edges := g.GetNodeEdges(current)
-
 		for _, edge := range edges {
 			edgeNode := edge.ToNode()
-
-			// Skip visited
-			if visited[edgeNode] {
-				continue
-			}
-
-			pq.Push(edgeNode)
-
 			// If getting to edge from current is cheaper that the edge current cost state,
 			// update it to pass via current instead
 			if newCost := current.GetValue() + edge.GetWeight(); newCost < edgeNode.GetValue() {
@@ -105,6 +96,18 @@ func (g *GraphDijkstraImpl[T]) DijkstraShortestPathFrom(startNode NodeDijkstra[T
 				parents[edgeNode] = current
 			}
 		}
+		// 2nd loop: push to pq/heap
+		for _, edge := range edges {
+			edgeNode := edge.ToNode()
+			// Skip visited
+			if visited[edgeNode] {
+				continue
+			}
+			visited[edgeNode] = true
+			pq.Push(edgeNode)
+		}
+
+		visited[current] = true
 	}
 
 	return &DijstraShortestPath[T]{
